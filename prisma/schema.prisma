@@ -1,0 +1,106 @@
+generator client {
+  provider      = "prisma-client-js"
+  engineType    = "library"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id        String   @id @default(uuid())
+  name      String
+  apiKey    String   @unique @map("api_key")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  webhooks Webhook[]
+  events   Event[]
+
+  @@map("clients")
+}
+
+model Webhook {
+  id           String        @id @default(uuid())
+  clientId     String        @map("client_id")
+  url          String
+  secret       String
+  eventTypes   String[]      @map("event_types")
+  status       WebhookStatus @default(ACTIVE)
+  failureCount Int           @default(0) @map("failure_count")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  client           Client            @relation(fields: [clientId], references: [id])
+  deliveryAttempts DeliveryAttempt[]
+  deadLetterQueue  DeadLetterQueue[]
+
+  @@index([status])
+  @@index([clientId])
+  @@map("webhooks")
+}
+
+model Event {
+  id             String  @id @default(uuid())
+  clientId       String  @map("client_id")
+  eventType      String  @map("event_type")
+  payload        Json
+  idempotencyKey String? @unique @map("idempotency_key")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  client           Client            @relation(fields: [clientId], references: [id])
+  deliveryAttempts DeliveryAttempt[]
+  deadLetterQueue  DeadLetterQueue[]
+
+  @@index([eventType])
+  @@index([clientId])
+  @@map("events")
+}
+
+model DeliveryAttempt {
+  id             String         @id @default(uuid())
+  eventId        String         @map("event_id")
+  webhookId      String         @map("webhook_id")
+  status         DeliveryStatus
+  httpStatusCode Int?           @map("http_status_code")
+  responseTimeMs Int?           @map("response_time_ms")
+  attemptNumber  Int            @map("attempt_number")
+  nextRetryAt    DateTime?      @map("next_retry_at")
+  errorMessage   String?        @map("error_message")
+  createdAt      DateTime       @default(now()) @map("created_at")
+
+  event   Event   @relation(fields: [eventId], references: [id])
+  webhook Webhook @relation(fields: [webhookId], references: [id])
+
+  @@index([eventId])
+  @@index([webhookId])
+  @@map("delivery_attempts")
+}
+
+model DeadLetterQueue {
+  id            String   @id @default(uuid())
+  eventId       String   @map("event_id")
+  webhookId     String   @map("webhook_id")
+  lastError     String?  @map("last_error")
+  totalAttempts Int      @map("total_attempts")
+  movedAt       DateTime @default(now()) @map("moved_at")
+
+  event   Event   @relation(fields: [eventId], references: [id])
+  webhook Webhook @relation(fields: [webhookId], references: [id])
+
+  @@map("dead_letter_queue")
+}
+
+enum WebhookStatus {
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+enum DeliveryStatus {
+  SUCCESS
+  FAILED
+  PENDING
+  DLQ
+}
