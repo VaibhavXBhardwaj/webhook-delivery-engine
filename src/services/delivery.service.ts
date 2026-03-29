@@ -50,7 +50,7 @@ export async function deliverWebhook(data: DeliveryPayload): Promise<{
 
     const responseTimeMs = Date.now() - startTime;
 
-    logger.info(`✅ Webhook delivered successfully`, {
+    logger.info(`Webhook delivered successfully`, {
       webhookId: data.webhookId,
       url: data.webhookUrl,
       statusCode: response.status,
@@ -72,7 +72,7 @@ export async function deliverWebhook(data: DeliveryPayload): Promise<{
       ? `HTTP ${statusCode}: ${axiosError.message}`
       : `Network error: ${axiosError.message}`;
 
-    logger.warn(`❌ Webhook delivery failed`, {
+    logger.warn(` Webhook delivery failed`, {
       webhookId: data.webhookId,
       url: data.webhookUrl,
       statusCode,
@@ -142,7 +142,7 @@ export async function logDeliveryAttempt(
         where: { id: webhookId },
         data: { status: 'SUSPENDED' },
       });
-      logger.warn(`🚨 Webhook SUSPENDED (circuit breaker): ${webhookId}`);
+      logger.warn(`Webhook SUSPENDED (circuit breaker): ${webhookId}`);
     }
   }
 }
@@ -169,5 +169,5 @@ export async function moveToDeadLetterQueue(
     data: { status: 'DLQ' },
   });
 
-  logger.error(`💀 Event moved to DLQ`, { eventId, webhookId, totalAttempts });
+  logger.error(`Event moved to DLQ`, { eventId, webhookId, totalAttempts });
 }

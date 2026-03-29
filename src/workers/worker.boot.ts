@@ -5,7 +5,7 @@ import logger from '../lib/logger';
 
 async function bootWorker() {
   try {
-    logger.info('🔄 Starting delivery worker...');
+    logger.info('Starting delivery worker...');
 
     await connectDatabase();
     await connectRedis();
@@ -22,7 +22,7 @@ async function bootWorker() {
     process.on('SIGTERM', () => shutdown('SIGTERM'));
     process.on('SIGINT', () => shutdown('SIGINT'));
 
-    logger.info('🚀 Worker is running and waiting for jobs...');
+    logger.info('Worker is running and waiting for jobs...');
   } catch (error) {
     logger.error('Failed to start worker', { error });
     process.exit(1);

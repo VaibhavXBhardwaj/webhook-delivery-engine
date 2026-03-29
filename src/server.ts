@@ -35,9 +35,9 @@ async function bootstrap(): Promise<void> {
     await connectRedis();
 
     const server = app.listen(config.server.port, () => {
-      logger.info(`🚀 Server running on http://localhost:${config.server.port}`);
-      logger.info(`🌍 Environment: ${config.server.nodeEnv}`);
-      logger.info(`❤️  Health: http://localhost:${config.server.port}/api/v1/health`);
+      logger.info(` Server running on http://localhost:${config.server.port}`);
+      logger.info(` Environment: ${config.server.nodeEnv}`);
+      logger.info(` Health: http://localhost:${config.server.port}/api/v1/health`);
     });
 
     const shutdown = async (signal: string) => {

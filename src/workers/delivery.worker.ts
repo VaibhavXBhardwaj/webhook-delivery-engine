@@ -12,7 +12,7 @@ export function createDeliveryWorker() {
       const data = job.data;
       const attemptNumber = job.attemptsMade + 1;
 
-      logger.info(`🔄 Processing delivery job`, {
+      logger.info(`Processing delivery job`, {
         jobId: job.id,
         webhookId: data.webhookId,
         url: data.webhookUrl,
@@ -80,12 +80,12 @@ export function createDeliveryWorker() {
 
   // Worker event listeners
   worker.on('completed', (job) => {
-    logger.info(`✅ Job completed`, { jobId: job.id, webhookId: job.data.webhookId });
+    logger.info(`Job completed`, { jobId: job.id, webhookId: job.data.webhookId });
   });
 
   worker.on('failed', (job, error) => {
     if (job) {
-      logger.warn(`❌ Job failed (will retry)`, {
+      logger.warn(`Job failed (will retry)`, {
         jobId: job.id,
         webhookId: job.data.webhookId,
         attempt: job.attemptsMade,
@@ -98,6 +98,6 @@ export function createDeliveryWorker() {
     logger.error('Worker error', { error: error.message });
   });
 
-  logger.info('✅ Delivery worker started (concurrency: 10)');
+  logger.info('Delivery worker started (concurrency: 10)');
   return worker;
 }

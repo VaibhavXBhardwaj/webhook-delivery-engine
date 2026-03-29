@@ -12,20 +12,20 @@ const redis = new Redis(config.redis.url, {
   },
 });
 
-redis.on('connect', () => logger.info('✅ Redis connected'));
-redis.on('error', (err) => logger.error('❌ Redis error', { error: err.message }));
+redis.on('connect', () => logger.info('Redis connected'));
+redis.on('error', (err) => logger.error('Redis error', { error: err.message }));
 redis.on('close', () => logger.warn('Redis connection closed'));
 
 export async function connectRedis(): Promise<void> {
   // If already connected, resolve immediately
   if (redis.status === 'ready' || redis.status === 'connect') {
-    logger.info('✅ Redis ready');
+    logger.info('Redis ready');
     return;
   }
 
   return new Promise((resolve) => {
     redis.once('connect', () => {
-      logger.info('✅ Redis ready');
+      logger.info(' Redis ready');
       resolve();
     });
   });

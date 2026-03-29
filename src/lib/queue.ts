@@ -25,4 +25,4 @@ webhookDeliveryQueue.on('error', (error) => {
   logger.error('Queue error', { error: error.message });
 });
 
-logger.info('✅ BullMQ webhook delivery queue initialized');
+logger.info('BullMQ webhook delivery queue initialized');

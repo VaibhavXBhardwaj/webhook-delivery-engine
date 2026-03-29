@@ -29,7 +29,7 @@ const config = {
 const requiredEnvVars = ['DATABASE_URL', 'REDIS_URL'];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
-    throw new Error(`❌ Missing required environment variable: ${envVar}`);
+    throw new Error(`Missing required environment variable: ${envVar}`);
   }
 }
 

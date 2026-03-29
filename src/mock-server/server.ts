@@ -13,13 +13,13 @@ app.post('/webhook', (req, res) => {
   const webhookId = req.headers['x-webhook-id'];
   const attempt = req.headers['x-webhook-attempt'];
 
-  console.log('\n🔔 WEBHOOK RECEIVED!');
+  console.log('\nWEBHOOK RECEIVED!');
   console.log('─────────────────────────────');
-  console.log(`📦 Event ID:   ${webhookId}`);
-  console.log(`🔄 Attempt:    ${attempt}`);
-  console.log(`⏰ Timestamp:  ${timestamp}`);
-  console.log(`🔐 Signature:  ${signature}`);
-  console.log(`📄 Payload:    ${JSON.stringify(req.body, null, 2)}`);
+  console.log(`Event ID:   ${webhookId}`);
+  console.log(`Attempt:    ${attempt}`);
+  console.log(`Timestamp:  ${timestamp}`);
+  console.log(`Signature:  ${signature}`);
+  console.log(`Payload:    ${JSON.stringify(req.body, null, 2)}`);
   console.log('─────────────────────────────');
 
   RECEIVED_WEBHOOKS.push({
@@ -47,14 +47,14 @@ app.get('/webhooks', (req, res) => {
 
 // Simulate a failing endpoint (returns 500)
 app.post('/webhook-fail', (req, res) => {
-  console.log('\n❌ FAILING WEBHOOK (returning 500)');
+  console.log('\n FAILING WEBHOOK (returning 500)');
   res.status(500).json({ error: 'Simulated failure' });
 });
 
 const PORT = 4000;
 app.listen(PORT, () => {
-  console.log(`\n🎯 Mock webhook receiver running on http://localhost:${PORT}`);
-  console.log(`📬 Send webhooks to: http://localhost:${PORT}/webhook`);
-  console.log(`❌ Failing endpoint:  http://localhost:${PORT}/webhook-fail`);
-  console.log(`📋 View received:     http://localhost:${PORT}/webhooks\n`);
+  console.log(`\nMock webhook receiver running on http://localhost:${PORT}`);
+  console.log(`Send webhooks to: http://localhost:${PORT}/webhook`);
+  console.log(`Failing endpoint:  http://localhost:${PORT}/webhook-fail`);
+  console.log(`View received:     http://localhost:${PORT}/webhooks\n`);
 });
