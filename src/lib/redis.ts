@@ -17,12 +17,17 @@ redis.on('error', (err) => logger.error('❌ Redis error', { error: err.message 
 redis.on('close', () => logger.warn('Redis connection closed'));
 
 export async function connectRedis(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    redis.once('ready', () => {
+  // If already connected, resolve immediately
+  if (redis.status === 'ready' || redis.status === 'connect') {
+    logger.info('✅ Redis ready');
+    return;
+  }
+
+  return new Promise((resolve) => {
+    redis.once('connect', () => {
       logger.info('✅ Redis ready');
       resolve();
     });
-    redis.once('error', reject);
   });
 }
 

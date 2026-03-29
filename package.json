@@ -4,14 +4,17 @@
   "description": "Production grade distributed webhook delivery system",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "db:migrate": "npx prisma migrate dev",
-    "db:generate": "npx prisma generate",
-    "db:studio": "npx prisma studio",
-    "db:push": "npx prisma db push"
-  },
+  "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+  "dev:worker": "ts-node-dev --respawn --transpile-only src/workers/worker.boot.ts",
+  "dev:mock": "ts-node-dev --respawn --transpile-only src/mock-server/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "start:worker": "node dist/workers/worker.boot.js",
+  "db:migrate": "npx prisma migrate dev",
+  "db:generate": "npx prisma generate",
+  "db:studio": "npx prisma studio",
+  "db:push": "npx prisma db push"
+},
   "dependencies": {
     "@prisma/client": "^5.10.0",
     "axios": "^1.6.7",

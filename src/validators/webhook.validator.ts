@@ -1,24 +1,10 @@
 import { z } from 'zod';
 
-const VALID_EVENT_TYPES = [
-  'payment.success',
-  'payment.failed',
-  'order.created',
-  'order.updated',
-  'order.cancelled',
-  'user.created',
-  'user.deleted',
-  'subscription.created',
-  'subscription.cancelled',
-  '*', // wildcard - receives all events
-] as const;
-
 export const createWebhookSchema = z.object({
   body: z.object({
     url: z
       .string({ required_error: 'URL is required' })
-      .url('Must be a valid URL')
-      .startsWith('https://', 'URL must use HTTPS'),
+      .url('Must be a valid URL'),
     eventTypes: z
       .array(z.string())
       .min(1, 'At least one event type is required')
@@ -31,7 +17,6 @@ export const updateWebhookSchema = z.object({
     url: z
       .string()
       .url('Must be a valid URL')
-      .startsWith('https://', 'URL must use HTTPS')
       .optional(),
     eventTypes: z
       .array(z.string())

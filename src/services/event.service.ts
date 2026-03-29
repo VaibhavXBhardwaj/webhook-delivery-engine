@@ -3,6 +3,7 @@ import logger from '../lib/logger';
 import { AppError } from '../middleware/errorHandler';
 import { IngestEventInput } from '../validators/event.validator';
 import { getActiveWebhooksForEvent } from './webhook.service';
+import { webhookDeliveryQueue } from '../lib/queue';
 
 interface WebhookDelivery {
   deliveryAttemptId: string;
@@ -10,18 +11,15 @@ interface WebhookDelivery {
   status: string;
 }
 
-export async function ingestEvent(
-  clientId: string,
-  data: IngestEventInput
-) {
-  // Idempotency check — same key = same event, don't process twice
+export async function ingestEvent(clientId: string, data: IngestEventInput) {
+  // Idempotency check
   if (data.idempotencyKey) {
     const existing = await prisma.event.findUnique({
       where: { idempotencyKey: data.idempotencyKey },
     });
 
     if (existing) {
-      logger.info(`Duplicate event blocked by idempotency key: ${data.idempotencyKey}`);
+      logger.info(`Duplicate event blocked: ${data.idempotencyKey}`);
       return {
         event: existing,
         deliveries: [] as WebhookDelivery[],
@@ -31,7 +29,7 @@ export async function ingestEvent(
     }
   }
 
-  // Save event to database
+  // Save event
   const event = await prisma.event.create({
     data: {
       clientId,
@@ -43,11 +41,8 @@ export async function ingestEvent(
 
   logger.info(`Event ingested: ${event.id} (type: ${event.eventType})`);
 
-  // Fan-out — find ALL active webhooks that match this event type
-  const matchingWebhooks = await getActiveWebhooksForEvent(
-    clientId,
-    data.eventType
-  );
+  // Fan-out — find all matching webhooks
+  const matchingWebhooks = await getActiveWebhooksForEvent(clientId, data.eventType);
 
   if (matchingWebhooks.length === 0) {
     logger.info(`No matching webhooks for event type: ${data.eventType}`);
@@ -59,32 +54,57 @@ export async function ingestEvent(
     };
   }
 
-  // Create a PENDING delivery attempt for each matching webhook
-  const deliveryAttempts = await Promise.all(
-    matchingWebhooks.map((webhook: { id: string }) =>
-      prisma.deliveryAttempt.create({
-        data: {
-          eventId: event.id,
-          webhookId: webhook.id,
-          status: 'PENDING',
-          attemptNumber: 1,
-        },
-      })
-    )
-  );
+  // For each matching webhook: create DB record + add BullMQ job
+  const deliveries: WebhookDelivery[] = [];
 
-  logger.info(
-    `Fan-out complete: ${deliveryAttempts.length} delivery attempts created for event ${event.id}`
-  );
+  for (const webhook of matchingWebhooks) {
+    // Create PENDING delivery attempt in DB
+    const attempt = await prisma.deliveryAttempt.create({
+      data: {
+        eventId: event.id,
+        webhookId: webhook.id,
+        status: 'PENDING',
+        attemptNumber: 1,
+      },
+    });
+
+    // Add job to BullMQ queue
+    await webhookDeliveryQueue.add(
+      'deliver-webhook',
+      {
+        deliveryAttemptId: attempt.id,
+        eventId: event.id,
+        webhookId: webhook.id,
+        webhookUrl: webhook.url,
+        webhookSecret: webhook.secret,
+        payload: data.payload,
+        eventType: data.eventType,
+        attemptNumber: 1,
+      },
+      {
+        attempts: 5,
+        backoff: {
+          type: 'exponential',
+          delay: 1000, // 1s, 2s, 4s, 8s, 16s
+        },
+        removeOnComplete: 100, // keep last 100 completed jobs
+        removeOnFail: 200,     // keep last 200 failed jobs
+      }
+    );
+
+    deliveries.push({
+      deliveryAttemptId: attempt.id,
+      webhookId: webhook.id,
+      status: 'PENDING',
+    });
+
+    logger.info(`Job queued for webhook ${webhook.id} (event: ${event.id})`);
+  }
 
   return {
     event,
-    deliveries: deliveryAttempts.map((d) => ({
-      deliveryAttemptId: d.id,
-      webhookId: d.webhookId,
-      status: d.status,
-    })),
-    message: `Event queued for delivery to ${deliveryAttempts.length} webhook(s)`,
+    deliveries,
+    message: `Event queued for delivery to ${deliveries.length} webhook(s)`,
     duplicate: false,
   };
 }
