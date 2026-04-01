@@ -7,26 +7,35 @@ import {
   updateWebhookController,
   deleteWebhookController,
 } from '../controllers/webhook.controller';
+import {
+  getDeliveryHistoryController,
+  reactivateWebhookController,
+} from '../controllers/dlq.controller';
 
 const router = Router();
 
-// All webhook routes require authentication
 router.use(authenticate);
 
-// POST   /api/v1/webhooks       → register a webhook
-// GET    /api/v1/webhooks       → list all webhooks
+// POST   /api/v1/webhooks
+// GET    /api/v1/webhooks
 router
   .route('/')
   .post(createWebhookController)
   .get(getWebhooksController);
 
-// GET    /api/v1/webhooks/:id   → get single webhook
-// PUT    /api/v1/webhooks/:id   → update webhook
-// DELETE /api/v1/webhooks/:id   → delete webhook
+// GET    /api/v1/webhooks/:id
+// PUT    /api/v1/webhooks/:id
+// DELETE /api/v1/webhooks/:id
 router
   .route('/:id')
   .get(getWebhookByIdController)
   .put(updateWebhookController)
   .delete(deleteWebhookController);
+
+// GET  /api/v1/webhooks/:id/history      → delivery history
+router.get('/:id/history', getDeliveryHistoryController);
+
+// POST /api/v1/webhooks/:id/reactivate   → reactivate suspended webhook
+router.post('/:id/reactivate', reactivateWebhookController);
 
 export default router;
