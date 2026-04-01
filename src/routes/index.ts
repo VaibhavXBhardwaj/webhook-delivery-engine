@@ -3,10 +3,10 @@ import { ApiResponse } from '../utils/apiResponse';
 import clientRoutes from './client.routes';
 import webhookRoutes from './webhook.routes';
 import eventRoutes from './event.routes';
+import dlqRoutes from './dlq.routes';
 
 const router = Router();
 
-// Health check — public
 router.get('/health', (_req: Request, res: Response) => {
   ApiResponse.success(res, {
     status: 'healthy',
@@ -16,9 +16,9 @@ router.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-// API routes
 router.use('/clients', clientRoutes);
 router.use('/webhooks', webhookRoutes);
 router.use('/events', eventRoutes);
+router.use('/dlq', dlqRoutes);
 
 export default router;
