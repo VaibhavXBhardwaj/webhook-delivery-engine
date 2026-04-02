@@ -4,16 +4,22 @@ import {
   ingestEventController,
   getDeliveryStatusController,
 } from '../controllers/event.controller';
+import { eventIngestionRateLimit } from '../middleware/rateLimit.middleware';
+import { idempotencyMiddleware } from '../middleware/idempotency.middleware';
 
 const router = Router();
 
-// All event routes require authentication
 router.use(authenticate);
 
-// POST /api/v1/events                    → ingest event (triggers fan-out)
-router.post('/', ingestEventController);
+// POST /api/v1/events
+router.post(
+  '/',
+  eventIngestionRateLimit,
+  idempotencyMiddleware,
+  ingestEventController
+);
 
-// GET  /api/v1/events/:eventId/status    → get delivery status
+// GET /api/v1/events/:eventId/status
 router.get('/:eventId/status', getDeliveryStatusController);
 
 export default router;
