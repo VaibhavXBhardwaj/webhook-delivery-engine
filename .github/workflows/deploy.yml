@@ -34,45 +34,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/webhook-delivery-engine
-
-            echo "Pulling latest code..."
             git pull origin main
-
-            echo "Building Docker images..."
-            docker-compose -f docker-compose.prod.yml build --no-cache
-
-            echo "Running database migrations..."
-            docker-compose -f docker-compose.prod.yml run --rm app \
-              npx prisma migrate deploy
-
-            echo "Restarting services..."
-            docker-compose -f docker-compose.prod.yml up -d
-
-            echo "Cleaning up old images..."
+            docker-compose -f docker-compose.prod.yml --env-file .env.production up -d --build
             docker image prune -f
-
             echo "Deployment complete!"
-
-      - name: Notify success
-        if: success()
-        run: echo "Deployment successful!"
-
-      - name: Notify failure
-        if: failure()
-        run: echo "Deployment failed!"
-```
-
-**Ctrl+S.**
-
----
-
-## Step 7 — Update `.gitignore`
-
-Open `.gitignore` → make sure these lines are there:
-```
-node_modules/
-dist/
-.env
-.env.production
-dashboard/node_modules/
-dashboard/dist/
