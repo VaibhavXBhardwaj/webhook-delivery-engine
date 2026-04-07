@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:3000/api/v1';
+const BASE = 'http://100.26.107.105:3000/api/v1';
 
 export function getKey(): string {
   return localStorage.getItem('whe_key') || '';
