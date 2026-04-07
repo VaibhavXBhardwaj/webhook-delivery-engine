@@ -13,6 +13,7 @@ router.get('/health', (_req: Request, res: Response) => {
     status: 'healthy',
     uptime: Math.floor(process.uptime()),
     environment: process.env.NODE_ENV,
+    version: '1.0.0',
     timestamp: new Date().toISOString(),
   });
 });
