@@ -19,7 +19,7 @@ export function Login({ onLogin }: { onLogin: () => void }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('http://localhost:3000/api/v1/clients/register', {
+      const res = await fetch('http://100.26.107.105/api/v1/clients/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim() }),
@@ -45,7 +45,7 @@ export function Login({ onLogin }: { onLogin: () => void }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('http://localhost:3000/api/v1/health', {
+      const res = await fetch('http://100.26.107.105/api/v1/health', {
         headers: { 'x-api-key': apiKeyInput.trim() },
       });
       if (res.ok) {
