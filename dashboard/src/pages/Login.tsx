@@ -19,7 +19,7 @@ export function Login({ onLogin }: { onLogin: () => void }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('http://100.26.107.105/api/v1/clients/register', {
+      const res = await fetch('/api/v1/clients/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim() }),
@@ -34,7 +34,7 @@ export function Login({ onLogin }: { onLogin: () => void }) {
         setError(data.message || 'Registration failed. Try again.');
       }
     } catch (e) {
-      setError('Cannot connect to server. Make sure npm run dev is running on port 3000.');
+      setError('Cannot connect to server. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ export function Login({ onLogin }: { onLogin: () => void }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('http://100.26.107.105/api/v1/health', {
+      const res = await fetch('/api/v1/health', {
         headers: { 'x-api-key': apiKeyInput.trim() },
       });
       if (res.ok) {
@@ -55,7 +55,7 @@ export function Login({ onLogin }: { onLogin: () => void }) {
         setError('Invalid API key. Check and try again.');
       }
     } catch {
-      setError('Cannot connect to server. Make sure npm run dev is running on port 3000.');
+      setError('Cannot connect to server. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -180,7 +180,7 @@ export function Login({ onLogin }: { onLogin: () => void }) {
           </div>
         )}
 
-        {/* SUCCESS step — show API key */}
+        {/* SUCCESS step */}
         {step === 'success' && (
           <div className="bg-[#111] border border-[#222] rounded-2xl p-8">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 mx-auto mb-4">
