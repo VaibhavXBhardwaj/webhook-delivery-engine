@@ -14,6 +14,18 @@ export function Login({ onLogin }: { onLogin: () => void }) {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  async function handleDemoLogin() {
+    setLoading(true);
+    setError('');
+    try {
+      const demoKey = 'whe_626cc78e774dfd3a19dd3a6ae1f84799c848531cdfa5875c3a76cdb1b4a8dfc0';
+      setKey(demoKey);
+      onLogin();
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleRegister() {
     if (!name.trim()) { setError('Please enter a name'); return; }
     setLoading(true);
@@ -89,6 +101,13 @@ export function Login({ onLogin }: { onLogin: () => void }) {
             <h1 className="text-2xl font-semibold text-white mb-2">WebhookEngine</h1>
             <p className="text-sm text-zinc-500 mb-8">Production grade webhook delivery system</p>
             <div className="space-y-3">
+              <button
+                onClick={handleDemoLogin}
+                disabled={loading}
+                className="w-full bg-green-600 hover:bg-green-700 text-white rounded-xl py-3.5 text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                ⚡ Try Demo (Instant Access)
+              </button>
               <button
                 onClick={() => { setStep('register'); setError(''); }}
                 className="w-full bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl py-3.5 text-sm font-medium transition-colors flex items-center justify-center gap-2"
