@@ -49,41 +49,8 @@ Your App fires an event
 ---
 
 ##  Architecture
+![c4004e00-aff5-4491-b40f-bfc8fce455a6 (1)](https://github.com/user-attachments/assets/4f6db838-7092-47b1-9591-620c49aac662)
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                                                                           │
-│                         WEBHOOK DELIVERY ENGINE                           │
-│                                                                           │
-│  ┌─────────────┐    ┌──────────────────┐    ┌──────────────────────┐    │
-│  │             │    │                  │    │                      │    │
-│  │  React      │    │   Express API    │    │   BullMQ Worker      │    │
-│  │  Dashboard  │───▶│   (REST Layer)   │───▶│   (Delivery Engine)  │    │
-│  │  (Vercel)   │    │                  │    │                      │    │
-│  └─────────────┘    └────────┬─────────┘    └──────────┬───────────┘    │
-│                              │                          │                │
-│                    ┌─────────▼──────────┐    ┌─────────▼───────────┐    │
-│                    │                    │    │                     │    │
-│                    │    PostgreSQL       │    │       Redis         │    │
-│                    │    (Prisma ORM)     │    │    (Job Queue)      │    │
-│                    │                    │    │                     │    │
-│                    │  • clients         │    │  • Pending jobs     │    │
-│                    │  • webhooks        │    │  • Retry delays     │    │
-│                    │  • events          │    │  • Idempotency      │    │
-│                    │  • delivery_atts   │    │    cache            │    │
-│                    │  • dead_letter_q   │    │                     │    │
-│                    └────────────────────┘    └─────────────────────┘    │
-│                                                                           │
-│                         ┌───────────────────┐                            │
-│                         │    Nginx          │                            │
-│                         │  Reverse Proxy    │                            │
-│                         │  + Rate Limiting  │                            │
-│                         └───────────────────┘                            │
-│                                                                           │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
----
 
 ##  Features
 
